@@ -159,7 +159,7 @@ let products=JSON.parse(localStorage.getItem('loja_products')||'null')||seed.map
 let orders=JSON.parse(localStorage.getItem('loja_orders')||'[]'), movements=JSON.parse(localStorage.getItem('loja_moves')||'[]'), audit=JSON.parse(localStorage.getItem('loja_audit')||'[]');
 let suppliers=JSON.parse(localStorage.getItem('loja_suppliers')||'[]'), purchases=JSON.parse(localStorage.getItem('loja_purchases')||'[]');
 let employees=JSON.parse(localStorage.getItem('loja_employees')||'null')||[{name:'Carla Bonifácio',role:'Operadora de caixa',phone:'',active:true},{name:'Baltazar Olange',role:'Gestor de loja',phone:'',active:true},{name:'Sanga Fiel Banze',role:'Vendedor',phone:'',active:true}];
-let appUsers=JSON.parse(localStorage.getItem('brommo_users')||'null')||[{name:'Paulo Manejo',username:'Paulo Manejo',password:'frida2026',role:'admin',active:true}];
+let appUsers=JSON.parse(localStorage.getItem('brommo_users')||'null')||[{name:'Paulo Manejo',username:'Paulo Manejo',password:'paulo1995',role:'admin',active:true}];
 let currentUser=null;
 let adminApprovalUntil=0;
 function isAdmin(){return !!(currentUser&&(currentUser.role==='admin'||Date.now()<adminApprovalUntil))}
