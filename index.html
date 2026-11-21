@@ -688,16 +688,23 @@ async function loginBrommo(){
  const button=document.getElementById("authLoginBtn");
  const timed=(promise,ms,message)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);
  if(!email||!password){error.textContent="Introduza o email e a palavra-passe do administrador.";return;}
- button.disabled=true;button.textContent="A preparar ligação…";error.textContent="";
+ button.disabled=true;
+ button.textContent="A contactar Firebase…";
+ error.style.color="#c33";
+ error.textContent="A estabelecer ligação segura…";
  brommoLoginInProgress=true;
  try{
+  if(!window.firebase||typeof firebase.auth!=="function")throw new Error("O serviço de autenticação Firebase não carregou. Actualize a página e tente novamente.");
+  if(!firebase.apps.length)firebase.initializeApp(brommoFirebaseConfig);
   const auth=firebase.auth();
-  button.textContent="A contactar Firebase…";
-  const credential=await timed(auth.signInWithEmailAndPassword(email,password),15000,"O Firebase não respondeu ao pedido de entrada em 15 segundos. Verifique a internet ou tente outra rede.");
-  button.textContent="A confirmar permissões…";
-  const token=await timed(credential.user.getIdTokenResult(),10000,"A conta entrou, mas a validação das permissões demorou demasiado.");
-  if(token.claims.admin!==true)throw new Error("A conta foi autenticada, mas não tem autorização de administrador no Firebase.");
+  error.textContent="A validar as credenciais…";
+  const credential=await timed(Promise.resolve().then(()=>auth.signInWithEmailAndPassword(email,password)),20000,"O Firebase não respondeu em 20 segundos. Verifique a ligação à internet.");
+  button.textContent="A validar administrador…";
+  error.textContent="Entrada aceite. A confirmar permissões…";
+  const token=await timed(credential.user.getIdTokenResult(),12000,"A conta entrou, mas a confirmação das permissões demorou demasiado.");
+  if(token.claims.admin!==true)throw new Error("A conta foi autenticada, mas não tem autorização de administrador.");
   brommoEnterApp(credential.user,email);
+  error.textContent="";
   log("Início de sessão",currentUser.name,0,"Acesso autenticado pelo Firebase");
   recordActivity("Acesso","Sessão iniciada",currentUser.username,"","Entrada no sistema com sincronização na nuvem");
  }catch(e){
