@@ -693,16 +693,16 @@ async function loginBrommo(){
  button.disabled=true;button.textContent="A contactar Firebase…";error.style.color="#c33";
  brommoLoginInProgress=true;
  try{
-  error.textContent="Etapa 1/4: a verificar o SDK Firebase…";
+  error.textContent="Etapa 1/4: a verificar o SDK Firebase…";button.textContent="Etapa 1/4: SDK Firebase…";
   await new Promise(resolve=>setTimeout(resolve,50));
   if(!window.firebase||typeof firebase.auth!=="function")throw new Error("O SDK de autenticação Firebase não carregou. Verifique a ligação e actualize a página.");
-  error.textContent="Etapa 2/4: a preparar a aplicação Firebase…";
+  error.textContent="Etapa 2/4: a preparar a aplicação Firebase…";button.textContent="Etapa 2/4: preparar Firebase…";
   await new Promise(resolve=>setTimeout(resolve,50));
   if(!firebase.apps.length)firebase.initializeApp(brommoFirebaseConfig);
-  error.textContent="Etapa 3/4: a iniciar o serviço de autenticação…";
+  error.textContent="Etapa 3/4: a iniciar o serviço de autenticação…";button.textContent="Etapa 3/4: iniciar autenticação…";
   await new Promise(resolve=>setTimeout(resolve,50));
   const auth=firebase.auth();
-  error.textContent="Etapa 4/4: a validar email e palavra-passe…";
+  error.textContent="Etapa 4/4: a validar email e palavra-passe…";button.textContent="Etapa 4/4: validar acesso…";
   button.textContent="A validar credenciais…";
   const credential=await timed(Promise.resolve().then(()=>auth.signInWithEmailAndPassword(email,password)),20000,"O Firebase não respondeu em 20 segundos. Verifique a ligação à internet.");
   error.textContent="Entrada aceite. A confirmar permissões…";
