@@ -5,14 +5,8 @@
     "stores": {
       "brommo": {
         "state": {
-          ".read": "auth != null",
-          ".write": "auth != null"
-        },
-        "users": {
-          "$uid": {
-            ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-            ".write": "auth != null && auth.uid === $uid"
-          }
+          ".read": "auth != null && auth.token.admin === true",
+          ".write": "auth != null && auth.token.admin === true"
         }
       }
     }
