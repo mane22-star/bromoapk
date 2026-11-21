@@ -1,0 +1,20 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "stores": {
+      "brommo": {
+        "state": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        },
+        "users": {
+          "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    }
+  }
+}
