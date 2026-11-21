@@ -681,7 +681,36 @@ async function brommoStartCloudSync(user){const token=await user.getIdTokenResul
  brommoSyncStatus("Sincronização activa — leitura e escrita confirmadas",true);}
 let brommoLoginInProgress=false;
 function brommoEnterApp(user,emailFallback){const localAdmin=appUsers.find(x=>x.active&&x.role==="admin");currentUser=localAdmin?{...localAdmin,username:user.email||emailFallback||""}:{name:"Administrador",username:user.email||emailFallback||"",role:"admin",active:true};document.getElementById("authScreen").style.display="none";document.getElementById("sessionName").textContent=currentUser.name;document.getElementById("sessionRole").textContent="Administrador";document.getElementById("sessionAvatar").textContent=employeeInitials(currentUser.name);applyPermissions();brommoSyncStatus("Sessão iniciada — a ligar à nuvem…");brommoStartCloudSync(user).then(()=>brommoSyncStatus("Sessão activa — sincronização ligada",true)).catch(e=>{console.error("BROMMO: sincronização",e);brommoSyncStatus("Sessão activa — falha na sincronização");});}
-async function loginBrommo(){const email=(document.getElementById("authEmail").value||"").trim(),password=document.getElementById("authPass").value||"",error=document.getElementById("authError"),button=document.getElementById("authLoginBtn");if(!email||!password){error.textContent="Introduza o email e a palavra-passe do administrador.";return;}button.disabled=true;button.textContent="A autenticar…";error.textContent="";brommoLoginInProgress=true;try{const credential=await Promise.race([firebase.auth().signInWithEmailAndPassword(email,password),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Tempo esgotado ao contactar o Firebase. Verifique a ligação à internet e tente novamente.")),20000))]);button.textContent="A validar acesso…";const token=await Promise.race([credential.user.getIdTokenResult(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("O Firebase demorou demasiado a validar a conta. Tente novamente.")),12000))]);if(token.claims.admin!==true)throw new Error("Esta conta não tem autorização de administrador no Firebase.");brommoEnterApp(credential.user,email);log("Início de sessão",currentUser.name,0,"Acesso autenticado pelo Firebase");recordActivity("Acesso","Sessão iniciada",currentUser.username,"","Entrada no sistema com sincronização na nuvem");}catch(e){console.error("BROMMO Firebase:",e);error.textContent=e.code==="auth/invalid-credential"||e.code==="auth/wrong-password"?"Email ou palavra-passe incorrectos.":(e.message||"Não foi possível iniciar sessão.");brommoSyncStatus("Falha no início de sessão");}finally{brommoLoginInProgress=false;button.disabled=false;button.textContent="Entrar e sincronizar";}}
+async function loginBrommo(){
+ const email=(document.getElementById("authEmail").value||"").trim();
+ const password=document.getElementById("authPass").value||"";
+ const error=document.getElementById("authError");
+ const button=document.getElementById("authLoginBtn");
+ const timed=(promise,ms,message)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);
+ if(!email||!password){error.textContent="Introduza o email e a palavra-passe do administrador.";return;}
+ button.disabled=true;button.textContent="A preparar ligação…";error.textContent="";
+ brommoLoginInProgress=true;
+ try{
+  const auth=firebase.auth();
+  await timed(auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL),10000,"Não foi possível preparar a sessão. Verifique a ligação e tente novamente.");
+  button.textContent="A contactar Firebase…";
+  const credential=await timed(auth.signInWithEmailAndPassword(email,password),15000,"O Firebase não respondeu ao pedido de entrada em 15 segundos. Verifique a internet ou tente outra rede.");
+  button.textContent="A confirmar permissões…";
+  const token=await timed(credential.user.getIdTokenResult(),10000,"A conta entrou, mas a validação das permissões demorou demasiado.");
+  if(token.claims.admin!==true)throw new Error("A conta foi autenticada, mas não tem autorização de administrador no Firebase.");
+  brommoEnterApp(credential.user,email);
+  log("Início de sessão",currentUser.name,0,"Acesso autenticado pelo Firebase");
+  recordActivity("Acesso","Sessão iniciada",currentUser.username,"","Entrada no sistema com sincronização na nuvem");
+ }catch(e){
+  console.error("BROMMO Firebase:",e);
+  error.textContent=e.code==="auth/invalid-credential"||e.code==="auth/wrong-password"?"Email ou palavra-passe incorrectos.":(e.message||"Não foi possível iniciar sessão.");
+  brommoSyncStatus("Falha no início de sessão");
+ }finally{
+  brommoLoginInProgress=false;
+  button.disabled=false;
+  button.textContent="Entrar e sincronizar";
+ }
+}
 function resetBrommoPassword(){const email=(document.getElementById("authEmail").value||"").trim(),error=document.getElementById("authError");if(!email){error.textContent="Introduza primeiro o email para receber a recuperação.";return;}firebase.auth().sendPasswordResetEmail(email).then(()=>{error.style.color="#087a38";error.textContent="Email de recuperação enviado. Verifique a caixa de entrada.";}).catch(e=>{error.style.color="#c33";error.textContent=e.message||"Não foi possível enviar a recuperação.";});}
 const brommoOriginalLogout=logoutBrommo;
 function logoutBrommo(){if(brommoCloudRef&&brommoCloudListener)brommoCloudRef.off("value",brommoCloudListener);brommoCloudReady=false;firebase.auth().signOut().catch(()=>{});brommoOriginalLogout();brommoSyncStatus("Sessão terminada");}
