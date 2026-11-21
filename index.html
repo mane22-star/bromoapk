@@ -684,8 +684,10 @@ function brommoEnterApp(user,emailFallback){const localAdmin=appUsers.find(x=>x.
 async function loginBrommo(){
  const email=(document.getElementById("authEmail").value||"").trim();
  const password=document.getElementById("authPass").value||"";
- const error=document.getElementById("authError");
+ let error=document.getElementById("authError");
  const button=document.getElementById("authLoginBtn");
+ if(!error){error=document.createElement("div");error.id="authError";const screen=document.getElementById("authScreen");(screen||document.body).appendChild(error);}
+ error.style.setProperty("display","block","important");error.style.setProperty("visibility","visible","important");error.style.setProperty("opacity","1","important");error.style.setProperty("min-height","24px","important");error.style.setProperty("margin","12px 0","important");error.style.setProperty("padding","10px","important");error.style.setProperty("background","#fff4df","important");error.style.setProperty("border","1px solid #e7c987","important");error.style.setProperty("border-radius","8px","important");error.style.setProperty("font-size","14px","important");error.style.setProperty("text-align","center","important");error.style.setProperty("color","#8a4b00","important");
  const timed=(promise,ms,message)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);
  if(!email||!password){error.textContent="Introduza o email e a palavra-passe do administrador.";return;}
  button.disabled=true;button.textContent="A contactar Firebase…";error.style.color="#c33";
