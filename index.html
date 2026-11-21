@@ -65,6 +65,20 @@ body{background:linear-gradient(180deg,#f8faff 0%,#eef3fa 100%);color:#17243a}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+/* Inicializa o Firebase logo após carregar os SDKs, antes de qualquer código da loja. */
+if (window.firebase && !firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey: "AIzaSyDUpcaoxnc3eKH_27_nDcnWOcaWzdL6IGA",
+    authDomain: "brommo-a6fed.firebaseapp.com",
+    databaseURL: "https://brommo-a6fed-default-rtdb.firebaseio.com",
+    projectId: "brommo-a6fed",
+    storageBucket: "brommo-a6fed.firebasestorage.app",
+    messagingSenderId: "571054330560",
+    appId: "1:571054330560:web:f0361c30c3d212db9d1325"
+  });
+}
+</script>
 <div class="app">
 <aside class="sidebar">
  <div class="brand"><div class="logo">L</div><span>LOJA<span style="color:var(--green)">.</span></span></div>
